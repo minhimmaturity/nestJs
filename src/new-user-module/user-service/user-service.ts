@@ -19,7 +19,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  findOne(userDto: UserDTO): Promise<UserEntity> {
-    return this.userRepository.findOne(userDto);
+  findOneBy(userDto: UserDTO): Promise<UserEntity> {
+    return this.userRepository.findOneBy(userDto);
   }
 }
