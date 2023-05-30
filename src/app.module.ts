@@ -7,9 +7,10 @@ import { DataSource } from 'typeorm';
 import dbConfig from 'typeorm.config';
 import { UserEntity } from './new-user-module/user/UserEntity';
 import { UserService } from './new-user-module/user-service/user-service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dbConfig), TypeOrmModule.forFeature([UserEntity]), NewUserModuleModule],
+  imports: [TypeOrmModule.forRoot(dbConfig), TypeOrmModule.forFeature([UserEntity]), NewUserModuleModule, AuthModule],
   controllers: [AppController],
   providers: [AppService, UserService],
 })

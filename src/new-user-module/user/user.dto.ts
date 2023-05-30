@@ -1,3 +1,5 @@
-export class UserDTO {
-
+export class CreateUserDTO {
+  name: string;
+  password: string;
+  role: number;
 }
