@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { UserEntity } from 'src/new-user-module/user/UserEntity';
+import { UserEntity } from 'src/auth/auth/model/UserEntity';
 
 const dbConfig: TypeOrmModuleOptions = {
   type: 'mysql',
