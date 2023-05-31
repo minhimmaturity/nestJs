@@ -46,13 +46,18 @@ export class authService {
     };
   }
 
-  async validateUser(name) {
-    const user = await this.userService.findByName(name);
+  async validateUser(id) {
+    const user = await this.userService.findByName(id);
     if (!user) {
       throw new HttpException('ngu', HttpStatus.OK);
     }
     return user;
   }
+
+  // async findById(id: number): Promise<UserEntity> {
+  //   const user = await this.userRepository.findOne(id);
+  //   return user;
+  // }
 
   private createToken({ name }): any {
     const access_token = this.jwtService.sign({ name });

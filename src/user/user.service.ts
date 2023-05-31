@@ -17,6 +17,7 @@ export type User = any;
 
 @Injectable()
 export class UserService {
+  
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -24,6 +25,10 @@ export class UserService {
 
   save(userDto: CreateUserDTO): Promise<UserEntity> {
     return this.userRepository.save(userDto);
+  }
+
+  async findById(sub: number) {
+    const user = await this.userRepository.findBy({id: sub});
   }
 
   findAll(): Promise<UserEntity[]> {

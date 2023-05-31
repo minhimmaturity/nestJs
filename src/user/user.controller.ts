@@ -39,7 +39,7 @@ export class UserController {
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
   async getProfile(@Req() req, @Res() res: any): Promise<any> {
-    const { roles, name } = req.user;
-    res.json({ roles, name });
+    const { roles, name, id } = req.user;
+    res.json({ roles, name, id });
   }
 }
