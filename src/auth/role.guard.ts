@@ -1,7 +1,14 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '../user/enum/role.enum';
 import { ROLES_KEY } from './role.decoraters';
+import { Role } from 'src/user/enum/role.enum';
+import { JwtPayload } from 'jsonwebtoken';
+import { jwtConstants } from './constants';
+import * as jwt from 'jsonwebtoken'
+
+interface DecodedToken extends JwtPayload {
+  roles: string[]; // Adjust the type of 'roles' based on your JWT payload structure
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -12,22 +19,24 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    console.log(requiredRoles);
-
     if (!requiredRoles) {
       return true;
     }
-    const res = context.switchToHttp().getRequest();
-    console.log(res.headers.Role);
 
-    const { user } = res;
-    console.log(user);
+    const request = context.switchToHttp().getRequest();
+    const token = request.headers.authorization.split('Bearer ')[1];
+    console.log(token);
 
-    if (!user || !user.roles) {
+    try {
+      const decodedToken = jwt.verify(token, jwtConstants.secret) as DecodedToken; // Provide the DecodedToken type
+      console.log(decodedToken);
+      const userRoles = decodedToken.roles;
+      console.log(userRoles);
+
+      return requiredRoles.some((role) => userRoles?.includes(role));
+    } catch (error) {
+      console.error(error);
       return false;
     }
-
-    return requiredRoles.some((role) => user.roles.includes(role));
   }
 }

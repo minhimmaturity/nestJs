@@ -27,13 +27,14 @@ export class UserController {
   @Roles(Role.Admin)
   async getUser(@Req() req, @Res() res): Promise<void> {
     try {
-      const user = req.user;
-      const usersWithoutPassword = {
-        id: user.id,
-        name: user.name,
-        roles: user.roles,
-      };
-      res.status(200).json(usersWithoutPassword);
+      const user = await this.userService.findAll();
+      const usersWithoutPassword = user.map(({ id, name, roles }) => ({
+        id,
+        name,
+        roles,
+      }));
+
+      res.status(201).json(usersWithoutPassword);
     } catch (err) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
