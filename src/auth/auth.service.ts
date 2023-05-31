@@ -54,13 +54,9 @@ export class authService {
     return user;
   }
 
-  // async findById(id: number): Promise<UserEntity> {
-  //   const user = await this.userRepository.findOne(id);
-  //   return user;
-  // }
 
-  private createToken({ name }): any {
-    const access_token = this.jwtService.sign({ name });
+  private createToken({ name, roles }): any {
+    const access_token = this.jwtService.sign({ name, roles });
     return {
       access_token,
     };

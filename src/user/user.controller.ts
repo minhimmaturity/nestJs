@@ -23,21 +23,24 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  async getUser(@Res() res): Promise<void> {
-    const user = await this.userService.findAll();
-    const usersWithoutPassword = user.map(({ id, name, roles }) => ({
-      id,
-      name,
-      roles,
-    }));
-
-    res.status(201).json(usersWithoutPassword);
+  async getUser(@Req() req, @Res() res): Promise<void> {
+    try {
+      const user = req.user;
+      const usersWithoutPassword = {
+        id: user.id,
+        name: user.name,
+        roles: user.roles,
+      };
+      res.status(200).json(usersWithoutPassword);
+    } catch (err) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req, @Res() res: any): Promise<any> {
     const { roles, name, id } = req.user;
     res.json({ roles, name, id });

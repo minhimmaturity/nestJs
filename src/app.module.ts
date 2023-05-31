@@ -11,14 +11,16 @@ import { RolesGuard } from './auth/role.guard';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { JwtStrategy } from './auth/auth.strategy';
+import { authService } from './auth/auth.service';
+import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dbConfig),
     TypeOrmModule.forFeature([UserEntity]),
     AuthModule,
-    UserModule,
-    
+    UserModule,    
   ],
   controllers: [AppController],
   providers: [
@@ -28,10 +30,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // }
+    JwtStrategy,
   ],
 })
 export class AppModule {

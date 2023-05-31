@@ -3,13 +3,12 @@ import { AuthController } from './auth.controller';
 import { authService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entity/UserEntity';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth.strategy';
 import { UserService } from 'src/user/user.service';
 import { APP_GUARD } from '@nestjs/core';
-// import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './role.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -23,6 +22,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [authService, UserService, JwtStrategy, JwtAuthGuard],
+  providers: [authService, UserService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  exports: [JwtStrategy, authService]
 })
 export class AuthModule {}

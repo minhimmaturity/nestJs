@@ -2,8 +2,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Req,
-  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -72,6 +70,11 @@ export class UserService {
     if (!isMatch) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
+    return user;
+  }
+
+  async findByIdAndName( name: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: {  name } });
     return user;
   }
 }

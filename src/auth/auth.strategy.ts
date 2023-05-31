@@ -11,7 +11,7 @@ import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: authService) {
+  constructor(private readonly userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: jwtConstants.secret,
@@ -19,9 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<UserEntity> {
-    const user = await this.authService.validateUser(payload.sub)
+    const user = await this.userService.findByIdAndName(payload.name);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Minh');
     }
     return user;
   }
