@@ -1,14 +1,12 @@
 import {
   Controller,
-  Res,
   Body,
   Post,
-  Req,
-  HttpCode,
-  HttpStatus,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { authService } from './auth.service';
-import { CreateUserDTO } from 'src/user/user.dto';
+import { CreateUserDTO } from 'src/user/dto/user.dto';
 import { LoginDto } from './auth.dto';
 
 @Controller('auth')
@@ -16,6 +14,7 @@ export class AuthController {
   constructor(private readonly authService: authService) {}
 
   @Post('/register')
+  @UsePipes(ValidationPipe)
   register(@Body() userDto: CreateUserDTO): Promise<any> {
     try {
       return this.authService.register(userDto);
@@ -25,6 +24,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @UsePipes(ValidationPipe)
   signIn(@Body() LoginDto: LoginDto) {
     return this.authService.login(LoginDto);
   }

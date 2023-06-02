@@ -2,9 +2,12 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from '../enum/role.enum';
 
 @Entity({ name: 'user' })
-export class UserEntity {
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  email: string;
 
   @Column()
   name: string;

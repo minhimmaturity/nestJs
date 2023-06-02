@@ -5,10 +5,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/user/entity/UserEntity';
+import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { LoginDto } from './auth.dto';
-import { CreateUserDTO } from 'src/user/user.dto';
+import { CreateUserDTO } from 'src/user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 // import { Role } from '../enum/role.enum';
@@ -16,8 +16,8 @@ import { UserService } from 'src/user/user.service';
 @Injectable()
 export class authService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
@@ -28,6 +28,7 @@ export class authService {
 
       return {
         message: 'User registered successfully',
+        email: user.email,
         name: user.name,
       };
     } catch (err) {
@@ -40,23 +41,22 @@ export class authService {
     const token = this.createToken(user);
 
     return {
-      name: user.name,
+      email: user.email,
       roles: user.roles,
       ...token,
     };
   }
 
-  async validateUser(id) {
-    const user = await this.userService.findByName(id);
+  async validateUser(email) {
+    const user = await this.userService.findOne(email);
     if (!user) {
       throw new HttpException('ngu', HttpStatus.OK);
     }
     return user;
   }
 
-
-  private createToken({ name, roles }): any {
-    const access_token = this.jwtService.sign({ name, roles });
+  private createToken({ email, name, roles }): any {
+    const access_token = this.jwtService.sign({ email ,name, roles });
     return {
       access_token,
     };

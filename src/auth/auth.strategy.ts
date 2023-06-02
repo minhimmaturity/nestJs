@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from './constants';
 import { authService } from './auth.service';
 import { JwtPayload } from 'jsonwebtoken';
-import { UserEntity } from 'src/user/entity/UserEntity';
+import { User } from 'src/user/entity/user.entity';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -18,8 +18,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<UserEntity> {
-    const user = await this.userService.findByIdAndName(payload.name);
+  async validate(payload: JwtPayload): Promise<User> {
+    const user = await this.userService.findOne(payload.email);
     if (!user) {
       throw new UnauthorizedException('Minh');
     }

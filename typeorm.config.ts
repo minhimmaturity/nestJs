@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { UserEntity } from 'src/user/entity/UserEntity';
+import { User } from 'src/user/entity/user.entity';
 
 const dbConfig: TypeOrmModuleOptions = {
   type: 'mysql',
@@ -7,8 +7,8 @@ const dbConfig: TypeOrmModuleOptions = {
   port: 3306,
   username: 'root',
   password: '',
-  database: 'test1',
-  entities: [UserEntity],
+  database: 'swiftsoft',
+  entities: [User],
   synchronize: true,
 };
 
