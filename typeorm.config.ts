@@ -4,11 +4,11 @@ import * as dotenv from 'dotenv';
 
 const dbConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: process.env.pghost,
-  port: parseInt(process.env.pgport),
-  username: process.env.pguser,
-  password: process.env.pgpassword,
-  database: process.env.pgdatabase,
+  host: 'ep-orange-brook-551938.us-east-2.aws.neon.tech',
+  port: 5432,
+  username: 'minhimmaturity',
+  password: '0TDtXa6uBLnE',
+  database: 'swiftshort',
   entities: [User],
   synchronize: true,
   ssl: {
