@@ -24,8 +24,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async getUser(@Req() req, @Res() res): Promise<void> {
     try {
       const user = await this.userService.findAll();
@@ -66,7 +66,7 @@ export class UserController {
     res.json({ roles, name, id });
   }
 
-  @Put('/update')
+  @Put('/reset-password')
   async update(@Body('name') name: string, @Body('password') password: string) {
     try {
       if(await this.userService.update(name, password)) {

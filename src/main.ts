@@ -17,6 +17,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  app.enableCors({
+    origin: true, // Set it to true to allow all origins or provide a specific origin or an array of origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept'], // Allowed request headers
+  });
+  
   await app.listen(4000);
 
   if (module.hot) {
@@ -26,3 +32,5 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+
