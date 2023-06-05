@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
-import { LoginDto } from 'src/auth/auth.dto';
+import { LoginDto } from 'src/auth/dto/auth.dto';
 // import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/user.dto';
 import { User } from './entity/user.entity';
@@ -39,15 +39,14 @@ export class UserService {
       if (userInDb) {
         throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
       }
-      
+
       const user = await this.userRepository.create(userDto);
-      if(userDto.roles == null) {
-        user.roles = Role.User
+      if (userDto.roles == null) {
+        user.roles = Role.User;
       } else {
         user.roles = userDto.roles;
       }
       return await this.userRepository.save(user);
-      
     } catch (err) {
       throw err;
     }

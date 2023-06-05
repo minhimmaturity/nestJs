@@ -7,17 +7,17 @@ import dbConfig from 'typeorm.config';
 import { User } from './user/entity/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { RolesGuard } from './auth/role.guard';
+import { RolesGuard } from './auth/guards/role.guard';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
-import { JwtStrategy } from './auth/auth.strategy';
+import { JwtStrategy } from './auth/guards/auth.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { LinksModule } from './links/links.module';
 import { Link } from './links/entity/links.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({  envFilePath: '.env', isGlobal: true}),
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRoot(dbConfig),
     TypeOrmModule.forFeature([User, Link]),
     AuthModule,

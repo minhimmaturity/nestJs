@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
-import { LoginDto } from './auth.dto';
+import { LoginDto } from './dto/auth.dto';
 import { CreateUserDTO } from 'src/user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
@@ -56,7 +56,7 @@ export class authService {
   }
 
   private createToken({ email, name, roles }): any {
-    const access_token = this.jwtService.sign({ email ,name, roles });
+    const access_token = this.jwtService.sign({ email, name, roles });
     return {
       access_token,
     };

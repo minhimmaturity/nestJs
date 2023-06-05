@@ -4,7 +4,7 @@ import { ROLES_KEY } from './role.decoraters';
 import { Role } from 'src/user/enum/role.enum';
 import { JwtPayload } from 'jsonwebtoken';
 import { jwtConstants } from './constants';
-import * as jwt from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken';
 
 interface DecodedToken extends JwtPayload {
   roles: string[]; // Adjust the type of 'roles' based on your JWT payload structure
@@ -27,9 +27,12 @@ export class RolesGuard implements CanActivate {
     const token = request.headers.authorization.split('Bearer ')[1];
 
     try {
-      const decodedToken = jwt.verify(token, jwtConstants.secret) as DecodedToken; // Provide the DecodedToken type
+      const decodedToken = jwt.verify(
+        token,
+        jwtConstants.secret,
+      ) as DecodedToken; // Provide the DecodedToken type
       const userRoles = decodedToken.roles;
-      
+
       return requiredRoles.some((role) => userRoles?.includes(role));
     } catch (error) {
       console.error(error);

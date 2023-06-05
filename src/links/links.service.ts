@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { LinkDto } from './dto/links.dto';
 import * as bcrypt from 'bcrypt';
-import { customAlphabet } from 'nanoid';
 
 @Injectable()
 export class LinksService {
@@ -44,12 +43,10 @@ export class LinksService {
       }
 
       const user = this.linkRepository.create(linkDto);
-      const mainDirectory = linkDto.originalLinks.split('.com/')[0];
-      const subDirectory = linkDto.originalLinks.split('.com/')[1];
+      const subDirectory = linkDto.originalLinks.split('/')[3];
       const hash = await bcrypt.hash(subDirectory, 5);
-      const shortString = "https://swiftshort.onrender.com/" + "links/" + hash.substring(0, 8);
+      const shortString = process.env.baseUrl + hash.substring(0, 8);
       
-
       user.shorterLinks = shortString;
       user.createAt = new Date();
 

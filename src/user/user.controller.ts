@@ -9,13 +9,13 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  Put
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Roles } from 'src/auth/role.decoraters';
+import { Roles } from 'src/auth/guards/role.decoraters';
 import { Role } from './enum/role.enum';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/role.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth()
@@ -46,17 +46,16 @@ export class UserController {
   @Roles(Role.Admin)
   async remove(@Body('name') name: string) {
     try {
-      if(await this.userService.remove(name)) {
+      if (await this.userService.remove(name)) {
         return {
-          'message': "Remove user successfully",
-        }
+          message: 'Remove user successfully',
+        };
       } else {
         throw new HttpException('Remove failed', HttpStatus.BAD_REQUEST);
       }
-    } catch(err) {
-      throw new HttpException(err, HttpStatus.EXPECTATION_FAILED)
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.EXPECTATION_FAILED);
     }
-    
   }
 
   @Get('profile')
@@ -69,16 +68,15 @@ export class UserController {
   @Put('/reset-password')
   async update(@Body('name') name: string, @Body('password') password: string) {
     try {
-      if(await this.userService.update(name, password)) {
+      if (await this.userService.update(name, password)) {
         return {
-          'message': "Update user successfully",
-        }
+          message: 'Update user successfully',
+        };
       } else {
         throw new HttpException('Update failed', HttpStatus.BAD_REQUEST);
       }
-    } catch(err) {
-      throw new HttpException(err, HttpStatus.EXPECTATION_FAILED)
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.EXPECTATION_FAILED);
     }
   }
-
 }
