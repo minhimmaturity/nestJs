@@ -47,7 +47,7 @@ export class LinksService {
       const mainDirectory = linkDto.originalLinks.split('.com/')[0];
       const subDirectory = linkDto.originalLinks.split('.com/')[1];
       const hash = await bcrypt.hash(subDirectory, 5);
-      const shortString = "https://swiftshort.onrender.com/" + "links" + hash.substring(0, 8);
+      const shortString = "https://swiftshort.onrender.com/" + "links/" + hash.substring(0, 8);
       
 
       user.shorterLinks = shortString;
