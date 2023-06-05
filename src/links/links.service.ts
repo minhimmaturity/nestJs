@@ -43,7 +43,12 @@ export class LinksService {
       }
 
       const user = this.linkRepository.create(linkDto);
-      const subDirectory = linkDto.originalLinks.split('/')[3];
+      // const subDirectory = linkDto.originalLinks.split('/')[3];
+
+      const domain = linkDto.originalLinks.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/)[1];
+
+      const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
+      console.log(subDirectory)
       const hash = await bcrypt.hash(subDirectory, 5);
       const shortString = process.env.baseUrl + hash.substring(0, 8);
       
