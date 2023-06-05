@@ -12,14 +12,17 @@ import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { JwtStrategy } from './auth/auth.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { LinksModule } from './links/links.module';
+import { Link } from './links/entity/links.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({  envFilePath: '.env', isGlobal: true}),
     TypeOrmModule.forRoot(dbConfig),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Link]),
     AuthModule,
     UserModule,
+    LinksModule,
   ],
   controllers: [AppController],
   providers: [

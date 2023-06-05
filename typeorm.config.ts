@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from 'src/user/entity/user.entity';
-import * as dotenv from 'dotenv';
+import { Link } from 'src/links/entity/links.entity';
 
 const dbConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -9,7 +9,7 @@ const dbConfig: TypeOrmModuleOptions = {
   username: 'minhimmaturity',
   password: '0TDtXa6uBLnE',
   database: 'swiftshort',
-  entities: [User],
+  entities: [User, Link],
   synchronize: true,
   ssl: {
     rejectUnauthorized: false,
