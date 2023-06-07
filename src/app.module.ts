@@ -14,6 +14,8 @@ import { JwtStrategy } from './auth/guards/auth.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { LinksModule } from './links/links.module';
 import { Link } from './links/entity/links.entity';
+import { MailModule } from './mail/mail.module';
+import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { Link } from './links/entity/links.entity';
     AuthModule,
     UserModule,
     LinksModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
@@ -33,6 +36,7 @@ import { Link } from './links/entity/links.entity';
       useClass: RolesGuard,
     },
     JwtStrategy,
+    MailService
   ],
 })
 export class AppModule {

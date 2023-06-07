@@ -9,19 +9,27 @@ import {
   Post,
   UsePipes,
   ValidationPipe,
-  Redirect
+  Redirect,
+  UseGuards,
+  Header,
+  Head,
+  Req
 } from '@nestjs/common';
 import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('links')
 export class LinksController {
   constructor(private readonly LinksService: LinksService) {}
 
   @Post()
-  async create(@Body() linkDto: LinkDto) {
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async create(@Req() req, @Body() linkDto: LinkDto) {
+    const {email} = req.user
     try {
-      if (await this.LinksService.create(linkDto)) {
+      if (await this.LinksService.create(email, linkDto)) {
         throw new HttpException('add success', HttpStatus.OK);
       } else {
         throw new HttpException('add failed', HttpStatus.EXPECTATION_FAILED);

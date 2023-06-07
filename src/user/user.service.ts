@@ -1,19 +1,20 @@
 import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/auth/dto/auth.dto';
-// import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import { Role } from './enum/role.enum';
+import { Package } from './enum/type.enum';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly MailService​​: MailService
   ) {}
 
   save(userDto: CreateUserDTO): Promise<User> {
@@ -43,8 +44,10 @@ export class UserService {
       const user = await this.userRepository.create(userDto);
       if (userDto.roles == null) {
         user.roles = Role.User;
+        user.package = Package?.Free;
       } else {
         user.roles = userDto.roles;
+        user.package = Package?.Free;
       }
       return await this.userRepository.save(user);
     } catch (err) {
@@ -53,6 +56,8 @@ export class UserService {
   }
 
   async findLogin({ email, password }: LoginDto) {
+    console.log(email);
+    
     const user = await this.userRepository.findOneBy({ email: email });
 
     if (!user) {
@@ -73,6 +78,7 @@ export class UserService {
 
   async update(@Body() email: string, password: string) {
     const user = await this.userRepository.findOne({ where: { email } });
+    await this.MailService​​.sendUserConfirmation(user)
     if (user) {
       user.email = email;
       const hashedPassword = await bcrypt.hash(password, 10);

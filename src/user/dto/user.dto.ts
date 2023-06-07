@@ -1,5 +1,6 @@
 import { IsNotEmpty, Matches, IsEmail } from 'class-validator';
 import { Role } from '../enum/role.enum';
+import { Package } from '../enum/type.enum';
 
 export class CreateUserDTO {
   @IsNotEmpty()
@@ -14,4 +15,5 @@ export class CreateUserDTO {
   password: string;
 
   roles: Role;
+  package : Package
 }

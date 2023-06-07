@@ -4,7 +4,6 @@ export class LinkDto {
   @IsNotEmpty()
   originalLinks: string;
 
-  @IsNotEmpty()
   shorterLinks: string;
 
   createdAt: Date

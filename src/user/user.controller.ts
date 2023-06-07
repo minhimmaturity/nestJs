@@ -66,9 +66,9 @@ export class UserController {
   }
 
   @Put('/reset-password')
-  async update(@Body('name') name: string, @Body('password') password: string) {
+  async update(@Body('email') email: string, @Body('password') password: string) {
     try {
-      if (await this.userService.update(name, password)) {
+      if (await this.userService.update(email, password)) {
         return {
           message: 'Update user successfully',
         };

@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { Link } from './entity/links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { LinkDto } from './dto/links.dto';
 import * as bcrypt from 'bcrypt';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class LinksService {
@@ -11,7 +13,10 @@ export class LinksService {
   constructor(
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
-  ) {}
+    ​​private readonly UserService​​: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
+    ) {}
 
   async findOne(shorterLinks: string): Promise<Link> {
     return this.linkRepository.findOneBy({ shorterLinks: shorterLinks });
@@ -32,18 +37,22 @@ export class LinksService {
     return linkMapping;
   }
 
-  async create(linkDto: LinkDto): Promise<Link> {
+  async create(email: string, linkDto: LinkDto): Promise<Link> {
     try {
       const linkInDb = await this.linkRepository.findOne({
         where: { originalLinks: linkDto.originalLinks },
       });
 
+      const userInDb = await this.UserService​​.findOne(email);
+      if(!userInDb) {
+        throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      }
+
       if (linkInDb) {
-        throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        throw new HttpException('Link already exists', HttpStatus.BAD_REQUEST);
       }
 
       const user = this.linkRepository.create(linkDto);
-      // const subDirectory = linkDto.originalLinks.split('/')[3];
 
       const domain = linkDto.originalLinks.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/)[1];
 
@@ -54,10 +63,13 @@ export class LinksService {
       
       user.shorterLinks = shortString;
       user.createAt = new Date();
+      user.clickCount = 0;
+      user.user = userInDb;
 
       return await this.linkRepository.save(user);
     } catch (err) {
-      throw err;
+      console.log(err);
+      console.log(err.cause);
     }
   }
 
