@@ -12,6 +12,7 @@ import { MailModule } from 'src/mail/mail.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Link, User]), UserModule, MailModule],
   controllers: [LinksController],
-  providers: [LinksService, UserService, MailService]
+  providers: [LinksService, UserService, MailService],
+  exports: [LinksService]
 })
 export class LinksModule {}

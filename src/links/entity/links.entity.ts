@@ -15,7 +15,7 @@ export class Link {
   @Column()
   createAt: Date;
 
-  @ManyToOne(() => User, user => user.links)
+  @ManyToOne(() => User, user => user.links, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({ nullable: true })

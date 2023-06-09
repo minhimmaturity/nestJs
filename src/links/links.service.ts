@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Req, forwardRef } from '@nestjs/common';
 import { Link } from './entity/links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
@@ -13,9 +13,8 @@ export class LinksService {
   constructor(
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
+    @Inject(forwardRef(() => UserService))
     ​​private readonly UserService​​: UserService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>
     ) {}
 
   async findOne(shorterLinks: string): Promise<Link> {

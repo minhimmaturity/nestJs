@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Package } from './enum/type.enum';
+import { LinksService } from 'src/links/links.service';
 
 @ApiBearerAuth()
 @Controller('user')
