@@ -7,14 +7,14 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User) {
-    const url = `https://nodemailer.com/about/`;
+    const url = `#`;
 
     await this.mailerService.sendMail({
       to: user.email,
-      // from: '"Support Team" <support@example.com>', // override default from
+    
       subject: 'Welcome to Nice App! Confirm your Email',
-      template: './confirmation', // `.hbs` extension is appended automatically
-      context: { // ✏️ filling curly brackets with content
+      template: './confirmation', 
+      context: {
         name: user.name,
         url,
       },

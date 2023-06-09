@@ -17,6 +17,7 @@ import { Role } from './enum/role.enum';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Package } from './enum/type.enum';
 
 @ApiBearerAuth()
 @Controller('user')
@@ -66,9 +67,12 @@ export class UserController {
   }
 
   @Put('/reset-password')
-  async update(@Body('email') email: string, @Body('password') password: string) {
+  async update(
+    @Body('email') email: string,
+    @Body('password') password: string,
+  ) {
     try {
-      if (await this.userService.update(email, password)) {
+      if (await this.userService.resetPassword(email, password)) {
         return {
           message: 'Update user successfully',
         };
@@ -77,6 +81,23 @@ export class UserController {
       }
     } catch (err) {
       throw new HttpException(err, HttpStatus.EXPECTATION_FAILED);
+    }
+  }
+
+  @Put('/update-package')
+  @UseGuards(JwtAuthGuard)
+  async updatePackage(@Req() req, @Body('package') userPackage: Package) {
+    const { email } = req.user;
+    const user = await this.userService.findOne(email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (await this.userService.updatePackage(user.email, userPackage)) {
+      return {
+        message: 'Update package successfully',
+      };
+    } else {
+      throw new HttpException('Update failed', HttpStatus.BAD_REQUEST);
     }
   }
 }

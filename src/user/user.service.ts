@@ -1,4 +1,4 @@
-import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -14,7 +14,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly MailService​​: MailService
+    private readonly MailService: MailService
   ) {}
 
   save(userDto: CreateUserDTO): Promise<User> {
@@ -76,13 +76,23 @@ export class UserService {
     return await this.userRepository.remove(user);
   }
 
-  async update(@Body() email: string, password: string) {
+  async resetPassword(@Body() email: string, password: string) {
     const user = await this.userRepository.findOne({ where: { email } });
-    await this.MailService​​.sendUserConfirmation(user)
+    await this.MailService.sendUserConfirmation(user)
     if (user) {
       user.email = email;
       const hashedPassword = await bcrypt.hash(password, 10);
       user.password = hashedPassword;
+      return await this.userRepository.update(user.id, user);
+    } else {
+      return new HttpException('invalid user', HttpStatus.FORBIDDEN);
+    }
+  }
+
+  async updatePackage(@Body() email: string, package1: Package) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if(user) {
+      user.package = package1;
       return await this.userRepository.update(user.id, user);
     } else {
       return new HttpException('invalid user', HttpStatus.FORBIDDEN);
