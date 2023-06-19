@@ -59,17 +59,20 @@ export class LinksController {
   @Redirect('', 301)
   async redirectToLongLink(
     @Param('shortLink') shortLink: string,
-    @Headers('user-agent') userAgent: string,
+    @Headers('User-Agent') userAgentString: string,
   ): Promise<{ url: string }> {
+
+    const userAgent = useragent.parse(userAgentString)
+
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
 
-    if (userAgent === 'iPhone' || userAgent === 'iPad') {
+    if (userAgent.family === 'iPhone' || userAgent.family === 'iPad') {
       console.log('https://apps.apple.com/us/app/messenger/id454638411');
       return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
-    } else if (userAgent === 'Android') {
+    } else if (userAgent.family === 'Android') {
       console.log('https://play.google.com/store/apps/details?id=com.facebook.orca');
       return { url: 'https://play.google.com/store/apps/details?id=com.facebook.orca' };
     } else {
