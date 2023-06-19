@@ -14,7 +14,7 @@ export class LinksService {
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
     @Inject(forwardRef(() => UserService))
-    ​​private readonly UserService​​: UserService,
+    private readonly UserService: UserService,
     ) {}
 
   async findOne(shorterLinks: string): Promise<Link> {
@@ -42,7 +42,7 @@ export class LinksService {
         where: { originalLinks: linkDto.originalLinks },
       });
 
-      const userInDb = await this.UserService​​.findOne(email);
+      const userInDb = await this.UserService.findOne(email);
       if(!userInDb) {
         throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
       }

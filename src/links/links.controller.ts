@@ -13,11 +13,13 @@ import {
   UseGuards,
   Header,
   Head,
-  Req
+  Req,
 } from '@nestjs/common';
 import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import * as useragent from 'useragent';
+import { Console } from 'console';
 
 @Controller('links')
 export class LinksController {
@@ -27,7 +29,7 @@ export class LinksController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async create(@Req() req, @Body() linkDto: LinkDto) {
-    const {email} = req.user
+    const { email } = req.user;
     try {
       if (await this.LinksService.create(email, linkDto)) {
         throw new HttpException('add success', HttpStatus.OK);
@@ -56,6 +58,7 @@ export class LinksController {
   @Get(':shortLink')
   @Redirect('', 301)
   async redirectToLongLink(
+    @Req() req,
     @Param('shortLink') shortLink: string,
   ): Promise<{ url: string }> {
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
@@ -63,8 +66,28 @@ export class LinksController {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
 
-    return { url: linkMapping.originalLinks };
+    const userAgentString = req.headers['user-agent'];
+    const userAgent = useragent.parse(userAgentString);
+
+    if (userAgent.isMobile) {
+      if (userAgent.family === 'iPhone' || userAgent.family === 'iPad') {
+        console.log('https://apps.apple.com/us/app/messenger/id454638411');
+        return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
+      } else if (userAgent.family === 'Android') {
+        console.log(
+          'https://play.google.com/store/apps/details?id=com.facebook.orca',
+        );
+        return {
+          url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
+        };
+      } else {
+        // Redirect other mobile devices to a fallback URL
+        return { url: 'https://www.example.com/mobile' };
+      }
+    } else {
+      // Redirect non-mobile devices to the web version
+      console.log(linkMapping.originalLinks);
+      return { url: linkMapping.originalLinks };
+    }
   }
 }
-
-
