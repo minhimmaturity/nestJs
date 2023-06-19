@@ -61,9 +61,9 @@ export class LinksController {
     @Param('shortLink') shortLink: string,
     @Headers('User-Agent') userAgentString: string,
   ): Promise<{ url: string }> {
-
-    const userAgent = useragent.parse(userAgentString)
+    const userAgent = useragent.parse(userAgentString);
     console.log(userAgentString);
+    console.log(userAgent);
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
@@ -73,12 +73,15 @@ export class LinksController {
       console.log('https://apps.apple.com/us/app/messenger/id454638411');
       return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
     } else if (userAgent.family === 'Android') {
-      console.log('https://play.google.com/store/apps/details?id=com.facebook.orca');
-      return { url: 'https://play.google.com/store/apps/details?id=com.facebook.orca' };
+      console.log(
+        'https://play.google.com/store/apps/details?id=com.facebook.orca',
+      );
+      return {
+        url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
+      };
     } else {
       console.log(linkMapping.originalLinks);
       return { url: linkMapping.originalLinks };
     }
   }
-  
 }
