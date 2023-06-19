@@ -67,25 +67,18 @@ export class LinksController {
     }
 
     const userAgentString = req.headers['user-agent'];
-    const userAgent = useragent.parse(userAgentString);
 
-    if (userAgent.isMobile) {
-      if (userAgent.family === 'iPhone' || userAgent.family === 'iPad') {
-        console.log('https://apps.apple.com/us/app/messenger/id454638411');
-        return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
-      } else if (userAgent.family === 'Android') {
-        console.log(
-          'https://play.google.com/store/apps/details?id=com.facebook.orca',
-        );
-        return {
-          url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
-        };
-      } else {
-        // Redirect other mobile devices to a fallback URL
-        return { url: 'https://www.example.com/mobile' };
-      }
+    if (userAgentString === 'iPhone' || userAgentString === 'iPad') {
+      console.log('https://apps.apple.com/us/app/messenger/id454638411');
+      return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
+    } else if (userAgentString === 'Android') {
+      console.log(
+        'https://play.google.com/store/apps/details?id=com.facebook.orca',
+      );
+      return {
+        url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
+      };
     } else {
-      // Redirect non-mobile devices to the web version
       console.log(linkMapping.originalLinks);
       return { url: linkMapping.originalLinks };
     }
