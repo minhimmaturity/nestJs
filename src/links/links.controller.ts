@@ -69,7 +69,7 @@ export class LinksController {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
 
-    if (userAgent.family === 'iPhone' || userAgent.family === 'iPad') {
+    if (userAgent.family === 'Mobile Safari') {
       console.log('https://apps.apple.com/us/app/messenger/id454638411');
       return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
     } else if (userAgent.family === 'Android') {
