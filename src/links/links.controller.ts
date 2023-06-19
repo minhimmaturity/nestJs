@@ -63,7 +63,7 @@ export class LinksController {
   ): Promise<{ url: string }> {
 
     const userAgent = useragent.parse(userAgentString)
-
+    console.log(userAgentString);
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
