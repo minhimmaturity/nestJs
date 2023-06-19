@@ -11,7 +11,7 @@ import {
   ValidationPipe,
   Redirect,
   UseGuards,
-  Header,
+  Headers,
   Head,
   Req,
 } from '@nestjs/common';
@@ -58,29 +58,24 @@ export class LinksController {
   @Get(':shortLink')
   @Redirect('', 301)
   async redirectToLongLink(
-    @Req() req,
     @Param('shortLink') shortLink: string,
+    @Headers('user-agent') userAgent: string,
   ): Promise<{ url: string }> {
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
 
-    const userAgentString = req.headers['user-agent'];
-
-    if (userAgentString === 'iPhone' || userAgentString === 'iPad') {
+    if (userAgent === 'iPhone' || userAgent === 'iPad') {
       console.log('https://apps.apple.com/us/app/messenger/id454638411');
       return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
-    } else if (userAgentString === 'Android') {
-      console.log(
-        'https://play.google.com/store/apps/details?id=com.facebook.orca',
-      );
-      return {
-        url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
-      };
+    } else if (userAgent === 'Android') {
+      console.log('https://play.google.com/store/apps/details?id=com.facebook.orca');
+      return { url: 'https://play.google.com/store/apps/details?id=com.facebook.orca' };
     } else {
       console.log(linkMapping.originalLinks);
       return { url: linkMapping.originalLinks };
     }
   }
+  
 }
