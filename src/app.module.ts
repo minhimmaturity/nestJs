@@ -16,7 +16,8 @@ import { LinksModule } from './links/links.module';
 import { Link } from './links/entity/links.entity';
 import { MailModule } from './mail/mail.module';
 import { MailService } from './mail/mail.service';
-import { Os } from './links/entity/os.entity';
+import { Os } from './os/entity/os.entity';
+import { OsModule } from './os/os.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Os } from './links/entity/os.entity';
     UserModule,
     LinksModule,
     MailModule,
+    OsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -37,7 +39,7 @@ import { Os } from './links/entity/os.entity';
       useClass: RolesGuard,
     },
     JwtStrategy,
-    MailService
+    MailService,
   ],
 })
 export class AppModule {

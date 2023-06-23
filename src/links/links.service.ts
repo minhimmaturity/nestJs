@@ -12,10 +12,9 @@ import { Repository, Like, FindManyOptions, Equal } from 'typeorm';
 import { LinkDto } from './dto/links.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/entity/user.entity';
 import { Package } from 'src/user/enum/type.enum';
-import { Os } from './entity/os.entity';
-import { OsDto } from './dto/os.dto';
+import { Os } from '../os/entity/os.entity';
+import { OsDto } from '../os/dto/os.dto';
 
 @Injectable()
 export class LinksService {
@@ -25,20 +24,21 @@ export class LinksService {
     @InjectRepository(Os)
     private readonly OsRepository: Repository<Os>,
     @Inject(forwardRef(() => UserService))
-    ​​private readonly UserService​​: UserService,
-    ) {}
+    private readonly UserService: UserService,
+  ) {}
 
   async findOne(shorterLinks: string): Promise<Link> {
     return this.linkRepository.findOneBy({ shorterLinks: shorterLinks });
   }
 
   async getLinks(): Promise<Link[]> {
-    const link: Link[] = await this.linkRepository.find();
+    const link: Link[] = await this.linkRepository.find({ relations: ['os'] });
     return link;
   }
 
   async findOneByShortLink(shortLink: string): Promise<Link | undefined> {
     const linkMapping = await this.linkRepository.findOne({
+      relations: ['os'],
       where: {
         shorterLinks: Like(`%${shortLink}%`),
       },
@@ -47,19 +47,14 @@ export class LinksService {
     return linkMapping;
   }
 
-  async create(
-    email: string,
-    linkDto: LinkDto,
-    @Req() req,
-    OsDto: OsDto,
-  ): Promise<Link> {
+  async create(email: string, linkDto: LinkDto): Promise<Link> {
     try {
       const linkInDb = await this.linkRepository.findOne({
         where: { originalLinks: linkDto.originalLinks },
       });
 
-      const userInDb = await this.UserService​​.findOne(email);
-      if(!userInDb) {
+      const userInDb = await this.UserService.findOne(email);
+      if (!userInDb) {
         throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
       }
 
@@ -82,8 +77,7 @@ export class LinksService {
         console.log(subDirectory);
         const hash = await bcrypt.hash(subDirectory, 5);
         const shortString = process.env.baseUrl + hash.substring(0, 8);
-        // const userAgent = req.headers['user-agent'];
-        // const operatingSystem = this.parseOperatingSystem(userAgent);
+
         os.destination_url = linkDto.originalLinks;
         os.name = 'Mac';
         await this.OsRepository.save(os);
@@ -134,22 +128,11 @@ export class LinksService {
     return await this.linkRepository.delete(id);
   }
 
-  async parseOperatingSystem(userAgent) {
-    let operatingSystem = '';
-
-    if (userAgent.includes('Windows')) {
-      operatingSystem = 'Windows';
-    } else if (userAgent.includes('Macintosh')) {
-      operatingSystem = 'Mac';
-    } else if (userAgent.includes('Linux')) {
-      operatingSystem = 'Linux';
-    } else if (userAgent.includes('Android')) {
-      operatingSystem = 'Android';
-    } else if (userAgent.includes('iOS')) {
-      operatingSystem = 'iOS';
-    }
-
-    return operatingSystem;
+  async takeDestinationUrl(id: number) {
+    return await this.OsRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
   }
 }
- 

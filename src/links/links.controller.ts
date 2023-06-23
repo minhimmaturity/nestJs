@@ -17,29 +17,24 @@ import {
 } from '@nestjs/common';
 import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
-import { OsDto } from './dto/os.dto';
+import { OsDto } from '../os/dto/os.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import * as useragent from 'useragent';
-import { Console } from 'console';
 import { Repository } from 'typeorm';
-import { Os } from './entity/os.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Os } from '../os/entity/os.entity';
 
 @Controller('links')
 export class LinksController {
-  constructor(
-    private readonly LinksService: LinksService,
-    @InjectRepository(Os)
-    private readonly OsRepository: Repository<Os>,
-  ) {}
+  constructor(private readonly LinksService: LinksService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  async create(@Req() req, @Body() linkDto: LinkDto) {
+  async create(@Req() req, @Body() linkDto: LinkDto, OsDto: OsDto) {
     const { email } = req.user;
     try {
-      if (await this.LinksService.create(email, linkDto, req, OsDto)) {
+      if (await this.LinksService.create(email, linkDto)) {
         throw new HttpException('add success', HttpStatus.OK);
       } else {
         throw new HttpException('add failed', HttpStatus.EXPECTATION_FAILED);
@@ -69,27 +64,12 @@ export class LinksController {
     @Param('shortLink') shortLink: string,
     @Headers('User-Agent') userAgentString: string,
   ): Promise<{ url: string }> {
-    const userAgent = useragent.parse(userAgentString);
-    console.log(userAgentString);
-    console.log(userAgent);
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
+    const osInDb = await this.LinksService.takeDestinationUrl(linkMapping.os.id)
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
-
-    if (userAgent.family === 'Mobile Safari') {
-      console.log('https://apps.apple.com/us/app/messenger/id454638411');
-      return { url: 'https://apps.apple.com/us/app/messenger/id454638411' };
-    } else if (userAgent.family === 'Android') {
-      console.log(
-        'https://play.google.com/store/apps/details?id=com.facebook.orca',
-      );
-      return {
-        url: 'https://play.google.com/store/apps/details?id=com.facebook.orca',
-      };
-    } else {
-      console.log(linkMapping.originalLinks);
-      return { url: linkMapping.originalLinks };
-    }
+    
+      return { url: osInDb.destination_url };
   }
 }

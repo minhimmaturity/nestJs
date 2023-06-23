@@ -5,14 +5,16 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { Os } from './os.entity';
 import { User } from 'src/user/entity/user.entity';
-
+import { Os } from '../../os/entity/os.entity';
 
 @Entity({ name: 'link' })
 export class Link {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  originalLinks: string;
 
   @Column()
   shorterLinks: string;
@@ -28,7 +30,4 @@ export class Link {
 
   @Column({ nullable: true })
   clickCount: number;
-
-  @Column({ nullable: true })
-  qrCode: string;
 }
