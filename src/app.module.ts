@@ -16,12 +16,13 @@ import { LinksModule } from './links/links.module';
 import { Link } from './links/entity/links.entity';
 import { MailModule } from './mail/mail.module';
 import { MailService } from './mail/mail.service';
+import { Os } from './links/entity/os.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     TypeOrmModule.forRoot(dbConfig),
-    TypeOrmModule.forFeature([User, Link]),
+    TypeOrmModule.forFeature([User, Link, Os]),
     AuthModule,
     UserModule,
     LinksModule,

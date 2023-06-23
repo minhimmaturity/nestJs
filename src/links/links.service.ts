@@ -1,20 +1,31 @@
-import { HttpException, HttpStatus, Inject, Injectable, Req, forwardRef } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Req,
+  forwardRef,
+} from '@nestjs/common';
 import { Link } from './entity/links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, FindManyOptions, Equal } from 'typeorm';
 import { LinkDto } from './dto/links.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/entity/user.entity';
+import { Package } from 'src/user/enum/type.enum';
+import { Os } from './entity/os.entity';
+import { OsDto } from './dto/os.dto';
 
 @Injectable()
 export class LinksService {
-  
   constructor(
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
+    @InjectRepository(Os)
+    private readonly OsRepository: Repository<Os>,
     @Inject(forwardRef(() => UserService))
-    private readonly UserService: UserService,
+    ​​private readonly UserService​​: UserService,
     ) {}
 
   async findOne(shorterLinks: string): Promise<Link> {
@@ -32,40 +43,87 @@ export class LinksService {
         shorterLinks: Like(`%${shortLink}%`),
       },
     });
-  
+
     return linkMapping;
   }
 
-  async create(email: string, linkDto: LinkDto): Promise<Link> {
+  async create(
+    email: string,
+    linkDto: LinkDto,
+    @Req() req,
+    OsDto: OsDto,
+  ): Promise<Link> {
     try {
       const linkInDb = await this.linkRepository.findOne({
         where: { originalLinks: linkDto.originalLinks },
       });
 
-      const userInDb = await this.UserService.findOne(email);
+      const userInDb = await this.UserService​​.findOne(email);
       if(!userInDb) {
         throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
       }
 
-      if (linkInDb) {
-        throw new HttpException('Link already exists', HttpStatus.BAD_REQUEST);
+      const options: FindManyOptions<Link> = {
+        where: {
+          user: { id: Equal(userInDb.id) }, // Use Equal operator to compare IDs
+        },
+      };
+
+      const linkByUser = await this.linkRepository.find(options);
+      if (userInDb.package != Package.Free) {
+        const links = this.linkRepository.create(linkDto);
+        const os = this.OsRepository.create();
+
+        const domain = linkDto.originalLinks.match(
+          /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/,
+        )[1];
+
+        const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
+        console.log(subDirectory);
+        const hash = await bcrypt.hash(subDirectory, 5);
+        const shortString = process.env.baseUrl + hash.substring(0, 8);
+        // const userAgent = req.headers['user-agent'];
+        // const operatingSystem = this.parseOperatingSystem(userAgent);
+        os.destination_url = linkDto.originalLinks;
+        os.name = 'Mac';
+        await this.OsRepository.save(os);
+
+        console.log(os);
+
+        links.shorterLinks = shortString;
+        links.createAt = new Date();
+        links.clickCount = 0;
+        links.user = userInDb;
+        links.os = os;
+        await this.linkRepository.save(links);
+
+        return links;
+      } else {
+        if (linkByUser.length <= 10) {
+          const links = this.linkRepository.create(linkDto);
+
+          const domain = linkDto.originalLinks.match(
+            /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/,
+          )[1];
+
+          const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
+          console.log(subDirectory);
+          const hash = await bcrypt.hash(subDirectory, 5);
+          const shortString = process.env.baseUrl + hash.substring(0, 8);
+
+          links.shorterLinks = shortString;
+          links.createAt = new Date();
+          links.clickCount = 0;
+          links.user = userInDb;
+
+          return await this.linkRepository.save(links);
+        } else {
+          throw new HttpException(
+            'Free account only can create 10 links',
+            HttpStatus.FORBIDDEN,
+          );
+        }
       }
-
-      const user = this.linkRepository.create(linkDto);
-
-      const domain = linkDto.originalLinks.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/)[1];
-
-      const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
-      console.log(subDirectory)
-      const hash = await bcrypt.hash(subDirectory, 5);
-      const shortString = process.env.baseUrl + hash.substring(0, 8);
-      
-      user.shorterLinks = shortString;
-      user.createAt = new Date();
-      user.clickCount = 0;
-      user.user = userInDb;
-
-      return await this.linkRepository.save(user);
     } catch (err) {
       console.log(err);
       console.log(err.cause);
@@ -75,4 +133,23 @@ export class LinksService {
   async delete(id: number) {
     return await this.linkRepository.delete(id);
   }
+
+  async parseOperatingSystem(userAgent) {
+    let operatingSystem = '';
+
+    if (userAgent.includes('Windows')) {
+      operatingSystem = 'Windows';
+    } else if (userAgent.includes('Macintosh')) {
+      operatingSystem = 'Mac';
+    } else if (userAgent.includes('Linux')) {
+      operatingSystem = 'Linux';
+    } else if (userAgent.includes('Android')) {
+      operatingSystem = 'Android';
+    } else if (userAgent.includes('iOS')) {
+      operatingSystem = 'iOS';
+    }
+
+    return operatingSystem;
+  }
 }
+ 

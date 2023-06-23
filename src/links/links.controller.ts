@@ -17,13 +17,21 @@ import {
 } from '@nestjs/common';
 import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
+import { OsDto } from './dto/os.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import * as useragent from 'useragent';
 import { Console } from 'console';
+import { Repository } from 'typeorm';
+import { Os } from './entity/os.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('links')
 export class LinksController {
-  constructor(private readonly LinksService: LinksService) {}
+  constructor(
+    private readonly LinksService: LinksService,
+    @InjectRepository(Os)
+    private readonly OsRepository: Repository<Os>,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -31,7 +39,7 @@ export class LinksController {
   async create(@Req() req, @Body() linkDto: LinkDto) {
     const { email } = req.user;
     try {
-      if (await this.LinksService.create(email, linkDto)) {
+      if (await this.LinksService.create(email, linkDto, req, OsDto)) {
         throw new HttpException('add success', HttpStatus.OK);
       } else {
         throw new HttpException('add failed', HttpStatus.EXPECTATION_FAILED);

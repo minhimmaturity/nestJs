@@ -1,5 +1,13 @@
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
+import { Os } from './os.entity';
 import { User } from 'src/user/entity/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+
 
 @Entity({ name: 'link' })
 export class Link {
@@ -7,20 +15,20 @@ export class Link {
   id: number;
 
   @Column()
-  originalLinks: string;
-
-  @Column()
   shorterLinks: string;
 
   @Column()
   createAt: Date;
 
-  @ManyToOne(() => User, user => user.links, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Os, (os) => os.link)
+  os: Os;
+
+  @ManyToOne(() => User, (user) => user.links, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({ nullable: true })
-  clickCount: number
+  clickCount: number;
 
-  @Column({nullable: true})
-  Address: string
+  @Column({ nullable: true })
+  qrCode: string;
 }

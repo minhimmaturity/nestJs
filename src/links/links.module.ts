@@ -8,9 +8,10 @@ import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/entity/user.entity';
 import { MailService } from 'src/mail/mail.service';
 import { MailModule } from 'src/mail/mail.module';
+import { Os } from './entity/os.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Link, User]), UserModule, MailModule],
+  imports: [TypeOrmModule.forFeature([Link, User, Os]), UserModule, MailModule],
   controllers: [LinksController],
   providers: [LinksService, UserService, MailService],
   exports: [LinksService]
