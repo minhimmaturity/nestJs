@@ -19,10 +19,6 @@ import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
 import { OsDto } from '../os/dto/os.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import * as useragent from 'useragent';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Os } from '../os/entity/os.entity';
 
 @Controller('links')
 export class LinksController {
@@ -31,11 +27,13 @@ export class LinksController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  async create(@Req() req, @Body() linkDto: LinkDto, OsDto: OsDto) {
+  async create(@Req() req, @Body() linkDto: LinkDto,@Body() OsDto: OsDto) {
     const { email } = req.user;
     try {
-      if (await this.LinksService.create(email, linkDto)) {
-        throw new HttpException('add success', HttpStatus.OK);
+      if (await this.LinksService.create(email, linkDto, OsDto)) {
+        return {
+          link: linkDto.originalLinks
+        };
       } else {
         throw new HttpException('add failed', HttpStatus.EXPECTATION_FAILED);
       }
@@ -44,9 +42,16 @@ export class LinksController {
     }
   }
 
+  @Get('/details/:id')
+  async getDetails(@Param('id') id: number) {
+    return await this.LinksService.getDetailsLink(id);
+  }
+
   @Get()
-  async getAllLink() {
-    return await this.LinksService.getLinks();
+  @UseGuards(JwtAuthGuard)
+  async getAllLink(@Req() req) {
+    const {email} = req.user
+    return await this.LinksService.getLinks(email);
   }
 
   @Delete(':id')
@@ -62,14 +67,18 @@ export class LinksController {
   @Redirect('', 301)
   async redirectToLongLink(
     @Param('shortLink') shortLink: string,
-    @Headers('User-Agent') userAgentString: string,
   ): Promise<{ url: string }> {
+    console.log(shortLink)
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
-    const osInDb = await this.LinksService.takeDestinationUrl(linkMapping.os.id)
+    const osInDb = await this.LinksService.takeDestinationUrl(
+      linkMapping.os.id,
+    );
+
+    await this.LinksService.updateCount(linkMapping.id);
     if (!linkMapping) {
       throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
     }
-    
-      return { url: osInDb.destination_url };
+
+    return { url: osInDb.destination_url };
   }
 }

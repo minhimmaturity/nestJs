@@ -27,13 +27,20 @@ export class LinksService {
     private readonly UserService: UserService,
   ) {}
 
+  async getDetailsLink(id: number): Promise<Link> {
+    return this.linkRepository.findOne({where: {id: id}, relations:['os']})
+  }
+
   async findOne(shorterLinks: string): Promise<Link> {
     return this.linkRepository.findOneBy({ shorterLinks: shorterLinks });
   }
 
-  async getLinks(): Promise<Link[]> {
-    const link: Link[] = await this.linkRepository.find({ relations: ['os'] });
-    return link;
+  async getLinks(email: string): Promise<Link[]> {
+    const links: Link[] = await this.linkRepository.find({
+      relations: ['os', 'user'],
+      where: { user: { email: email } },
+    });
+    return links;
   }
 
   async findOneByShortLink(shortLink: string): Promise<Link | undefined> {
@@ -47,7 +54,7 @@ export class LinksService {
     return linkMapping;
   }
 
-  async create(email: string, linkDto: LinkDto): Promise<Link> {
+  async create(email: string, linkDto: LinkDto, OsDto: OsDto): Promise<Link> {
     try {
       const linkInDb = await this.linkRepository.findOne({
         where: { originalLinks: linkDto.originalLinks },
@@ -79,7 +86,7 @@ export class LinksService {
         const shortString = process.env.baseUrl + hash.substring(0, 8);
 
         os.destination_url = linkDto.originalLinks;
-        os.name = 'Mac';
+        os.name = OsDto.name;
         await this.OsRepository.save(os);
 
         console.log(os);
@@ -123,6 +130,12 @@ export class LinksService {
       console.log(err.cause);
     }
   }
+
+  async updateCount(id: number) {
+    const linkInDb = await this.linkRepository.findOne({where: {id: id}});
+    linkInDb.clickCount++;
+    return await this.linkRepository.update(id, linkInDb);
+  } 
 
   async delete(id: number) {
     return await this.linkRepository.delete(id);

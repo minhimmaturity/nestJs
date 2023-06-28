@@ -18,6 +18,9 @@ import { MailModule } from './mail/mail.module';
 import { MailService } from './mail/mail.service';
 import { Os } from './os/entity/os.entity';
 import { OsModule } from './os/os.module';
+import type { RedisClientOptions } from 'redis';
+import * as redisStore from 'cache-manager-redis-store';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [

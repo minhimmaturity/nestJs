@@ -22,7 +22,7 @@ export class Link {
   @Column()
   createAt: Date;
 
-  @ManyToOne(() => Os, (os) => os.link)
+  @ManyToOne(() => Os, (os) => os.link, { onDelete: 'CASCADE' })
   os: Os;
 
   @ManyToOne(() => User, (user) => user.links, { onDelete: 'CASCADE' })
