@@ -10,5 +10,7 @@ export class OsService {
         private readonly OsRepository: Repository<Os>,
     ) {}
 
-    
+    async delete(id: number) {
+        return await this.OsRepository.delete(id);
+    }
 }

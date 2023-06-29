@@ -19,6 +19,7 @@ import { LinksService } from '../links/links.service';
 import { LinkDto } from './dto/links.dto';
 import { OsDto } from '../os/dto/os.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { OsEnum } from 'src/os/enum/os.enum';
 
 @Controller('links')
 export class LinksController {
@@ -27,10 +28,10 @@ export class LinksController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  async create(@Req() req, @Body() linkDto: LinkDto,@Body() OsDto: OsDto) {
+  async create(@Req() req, @Body() linkDto: LinkDto,@Body() name: OsEnum) {
     const { email } = req.user;
     try {
-      if (await this.LinksService.create(email, linkDto, OsDto)) {
+      if (await this.LinksService.create(email, linkDto, name)) {
         return {
           link: linkDto.originalLinks
         };

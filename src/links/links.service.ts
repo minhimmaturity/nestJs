@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { Package } from 'src/user/enum/type.enum';
 import { Os } from '../os/entity/os.entity';
 import { OsDto } from '../os/dto/os.dto';
+import { OsEnum } from 'src/os/enum/os.enum';
 
 @Injectable()
 export class LinksService {
@@ -28,7 +29,7 @@ export class LinksService {
   ) {}
 
   async getDetailsLink(id: number): Promise<Link> {
-    return this.linkRepository.findOne({where: {id: id}, relations:['os']})
+    return this.linkRepository.findOne({where: {id: id}, relations:['os', 'user']})
   }
 
   async findOne(shorterLinks: string): Promise<Link> {
@@ -54,12 +55,8 @@ export class LinksService {
     return linkMapping;
   }
 
-  async create(email: string, linkDto: LinkDto, OsDto: OsDto): Promise<Link> {
+  async create(email: string, linkDto: LinkDto, name: OsEnum): Promise<Link> {
     try {
-      const linkInDb = await this.linkRepository.findOne({
-        where: { originalLinks: linkDto.originalLinks },
-      });
-
       const userInDb = await this.UserService.findOne(email);
       if (!userInDb) {
         throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
@@ -67,7 +64,7 @@ export class LinksService {
 
       const options: FindManyOptions<Link> = {
         where: {
-          user: { id: Equal(userInDb.id) }, // Use Equal operator to compare IDs
+          user: { id: Equal(userInDb.id) }
         },
       };
 
@@ -86,7 +83,7 @@ export class LinksService {
         const shortString = process.env.baseUrl + hash.substring(0, 8);
 
         os.destination_url = linkDto.originalLinks;
-        os.name = OsDto.name;
+        os.name = name;
         await this.OsRepository.save(os);
 
         console.log(os);

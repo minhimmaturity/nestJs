@@ -18,9 +18,10 @@ import { MailModule } from './mail/mail.module';
 import { MailService } from './mail/mail.service';
 import { Os } from './os/entity/os.entity';
 import { OsModule } from './os/os.module';
-import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
+import { GoogleAuthModule } from './google-auth/google-auth.module';
+import type { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -32,6 +33,14 @@ import { CacheModule } from '@nestjs/cache-manager';
     LinksModule,
     MailModule,
     OsModule,
+    GoogleAuthModule,
+    CacheModule.registerAsync<RedisClientOptions>({
+      useFactory: () => ({
+        store: redisStore as any,
+        host: 'localhost',
+        port: 6379,
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [
