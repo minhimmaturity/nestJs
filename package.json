@@ -49,7 +49,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.16",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "util": "^0.12.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
