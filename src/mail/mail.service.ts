@@ -2,14 +2,15 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { User } from 'src/user/entity/user.entity';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User) {
-    const confirmKey = randomBytes(6).toString('hex');
-    const url = `http://localhost:4000/user/reset-password/${confirmKey}`;
+    const confirmationToken = jwt.sign({ email: user.email }, 'your-secret-key');
+    const url = `http://localhost:4000/user/reset-password/${confirmationToken}`;
     await this.mailerService.sendMail({
       to: user.email,
     

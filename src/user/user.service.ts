@@ -76,9 +76,13 @@ export class UserService {
     return await this.userRepository.remove(user);
   }
 
-  async resetPassword(@Body() email: string, password: string) {
+  async getConfirmationEmail(@Body() email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     await this.MailService.sendUserConfirmation(user)
+  }
+
+  async resetPassword(@Body() email: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
     if (user) {
       user.email = email;
       const hashedPassword = await bcrypt.hash(password, 10);

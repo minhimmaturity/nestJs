@@ -10,6 +10,8 @@ import {
   HttpException,
   HttpStatus,
   Put,
+  Post,
+  Headers,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Roles } from 'src/auth/guards/role.decoraters';
@@ -18,7 +20,12 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Package } from './enum/type.enum';
-import { LinksService } from 'src/links/links.service';
+import * as jwt from 'jsonwebtoken'
+import { JwtPayload } from 'jsonwebtoken';
+
+interface DecodeToken extends JwtPayload {
+  email: string;
+}
 
 @ApiBearerAuth()
 @Controller('user')
@@ -67,13 +74,19 @@ export class UserController {
     res.json({ roles, name, id });
   }
 
-  @Put('/reset-password')
-  async update(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
+  @Post('confirmChangePassword')
+  async takeConfirmEmail(@Body('email') email: string) {
+    await this.userService.getConfirmationEmail(email)
+    return {
+      message: "sent mail successfully",
+    }
+  }
+
+  @Put('reset-password')
+  async update(@Req() req, @Headers('confirmToken') token: string, @Body('password') password: string) {
+    const decodedToken = jwt.verify(token, 'your-secret-key') as DecodeToken;
     try {
-      if (await this.userService.resetPassword(email, password)) {
+      if (await this.userService.resetPassword(decodedToken.email, password)) {
         return {
           message: 'Update user successfully',
         };
@@ -81,7 +94,13 @@ export class UserController {
         throw new HttpException('Update failed', HttpStatus.BAD_REQUEST);
       }
     } catch (err) {
-      throw new HttpException(err, HttpStatus.EXPECTATION_FAILED);
+      throw new HttpException(
+        {
+          message: 'Unexpected error occurred',
+          error: err.message || 'Internal server error',
+        },
+        HttpStatus.EXPECTATION_FAILED,
+      );
     }
   }
 
@@ -100,5 +119,10 @@ export class UserController {
     } else {
       throw new HttpException('Update failed', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @Get('reset-password/:token')
+  async getUpdate(@Param('token') token: string) {
+    console.log(token);
   }
 }
