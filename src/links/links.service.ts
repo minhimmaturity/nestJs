@@ -16,6 +16,7 @@ import { Package } from 'src/user/enum/type.enum';
 import { Os } from '../os/entity/os.entity';
 import { OsDto } from '../os/dto/os.dto';
 import { OsEnum } from 'src/os/enum/os.enum';
+import { createLinkDto } from './dto/createLink.dto';
 
 @Injectable()
 export class LinksService {
@@ -55,7 +56,7 @@ export class LinksService {
     return linkMapping;
   }
 
-  async create(email: string, linkDto: LinkDto, name: OsEnum): Promise<Link> {
+  async create(email: string, createLinkDto: createLinkDto) {
     try {
       const userInDb = await this.UserService.findOne(email);
       if (!userInDb) {
@@ -70,20 +71,20 @@ export class LinksService {
 
       const linkByUser = await this.linkRepository.find(options);
       if (userInDb.package != Package.Free) {
-        const links = this.linkRepository.create(linkDto);
+        const links = this.linkRepository.create(createLinkDto);
         const os = this.OsRepository.create();
 
-        const domain = linkDto.originalLinks.match(
+        const domain = createLinkDto.originalLinks.match(
           /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/,
         )[1];
 
-        const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
+        const subDirectory = createLinkDto.originalLinks.split(domain)[1].slice(1);
         console.log(subDirectory);
         const hash = await bcrypt.hash(subDirectory, 5);
         const shortString = process.env.baseUrl + hash.substring(0, 8);
 
-        os.destination_url = linkDto.originalLinks;
-        os.name = name;
+        os.destination_url = createLinkDto.originalLinks;
+        os.name = createLinkDto.name;
         await this.OsRepository.save(os);
 
         console.log(os);
@@ -98,13 +99,13 @@ export class LinksService {
         return links;
       } else {
         if (linkByUser.length <= 10) {
-          const links = this.linkRepository.create(linkDto);
+          const links = this.linkRepository.create(createLinkDto);
 
-          const domain = linkDto.originalLinks.match(
+          const domain = createLinkDto.originalLinks.match(
             /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/,
           )[1];
 
-          const subDirectory = linkDto.originalLinks.split(domain)[1].slice(1);
+          const subDirectory = createLinkDto.originalLinks.split(domain)[1].slice(1);
           console.log(subDirectory);
           const hash = await bcrypt.hash(subDirectory, 5);
           const shortString = process.env.baseUrl + hash.substring(0, 8);

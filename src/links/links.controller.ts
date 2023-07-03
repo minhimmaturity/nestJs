@@ -16,10 +16,8 @@ import {
   Req,
 } from '@nestjs/common';
 import { LinksService } from '../links/links.service';
-import { LinkDto } from './dto/links.dto';
-import { OsDto } from '../os/dto/os.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { OsEnum } from 'src/os/enum/os.enum';
+import { createLinkDto } from './dto/createLink.dto';
 
 @Controller('links')
 export class LinksController {
@@ -28,12 +26,12 @@ export class LinksController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  async create(@Req() req, @Body() linkDto: LinkDto,@Body() name: OsEnum) {
+  async create(@Req() req, @Body() createLinkDto: createLinkDto) {
     const { email } = req.user;
     try {
-      if (await this.LinksService.create(email, linkDto, name)) {
+      if (await this.LinksService.create(email, createLinkDto)) {
         return {
-          link: linkDto.originalLinks
+          link: createLinkDto.originalLinks
         };
       } else {
         throw new HttpException('add failed', HttpStatus.EXPECTATION_FAILED);
@@ -69,7 +67,7 @@ export class LinksController {
   async redirectToLongLink(
     @Param('shortLink') shortLink: string,
   ): Promise<{ url: string }> {
-    console.log(shortLink)
+
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     const osInDb = await this.LinksService.takeDestinationUrl(
       linkMapping.os.id,
