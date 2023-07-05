@@ -6,20 +6,22 @@ import { LoginDto } from './dto/auth.dto';
 import { CreateUserDTO } from 'src/user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class authService {
 
   constructor(
     @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     // private readonly Cache: Cache,
-    private readonly userService: UserService,
+    private readonly UserService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async register(userDto: CreateUserDTO) {
     try {
-      const user = await this.userService.create(userDto);
+      const user = await this.UserService.create(userDto);
 
       return {
         message: 'User registered successfully',
@@ -31,28 +33,36 @@ export class authService {
     }
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.userService.findLogin(loginDto);
-    
-    const tokens = this.createTokens(user);
+  async login(LoginDto: LoginDto) {
+    const user = await this.userRepository.findOne({where: {email: LoginDto.email}})
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+    }
+
+    const isMatch = bcrypt.compare(LoginDto.password, user.password);
+    if (!isMatch) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+    const token = this.createToken(user);
 
     return {
       email: user.email,
       name: user.name,
       roles: user.roles,
-      ...tokens,
+      ...token,
     };
   }
 
-  async validateUser(email) {
-    const user = await this.userService.findOne(email);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return user;
-  }
+  // async validateUser(email) {
+  //   const user = await this.UserService.findOne(email);
+  //   if (!user) {
+  //     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //   }
+  //   return user;
+  // }
 
-  private createTokens({ email, name, roles }): any {
+  private createToken({ email, name, roles }): any {
     const access_token = this.jwtService.sign({ email, name, roles });
     return {
       access_token,

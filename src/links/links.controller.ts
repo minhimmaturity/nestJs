@@ -67,7 +67,7 @@ export class LinksController {
   async redirectToLongLink(
     @Param('shortLink') shortLink: string,
   ): Promise<{ url: string }> {
-
+    console.log("asd");
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
     const osInDb = await this.LinksService.takeDestinationUrl(
       linkMapping.os.id,

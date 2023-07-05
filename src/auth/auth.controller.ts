@@ -33,14 +33,8 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(ValidationPipe)
-  async signIn(@Body() loginDto: LoginDto): Promise<any> {
-    const userData = await this.authService.login(loginDto);
-    const { access_token, ...user } = userData;
-    return {
-      message: 'Login successful',
-      access_token,
-      userData: user,
-    };
+  signIn(@Body() LoginDto: LoginDto) {
+    return this.authService.login(LoginDto);
   }
 
   @Get('/login')

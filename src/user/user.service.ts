@@ -25,9 +25,17 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(email: string): Promise<User> {
-    return this.userRepository.findOneBy({ email: email });
+  async findOne(email: string) {
+    console.log(email)
+    const user = await this.userRepository.findOne({where: {email: email}});
+  
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+    }
+  
+    return user;
   }
+  
 
   async create(userDto: CreateUserDTO): Promise<User> {
     try {
@@ -55,7 +63,7 @@ export class UserService {
     }
   }
 
-  async findLogin({ email, password }: LoginDto) {
+  async findLogin(email: string, password: string ) {
     console.log(email);
     
     const user = await this.userRepository.findOneBy({ email: email });
