@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, CacheModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,6 +19,9 @@ import { MailService } from './mail/mail.service';
 import { Os } from './os/entity/os.entity';
 import { OsModule } from './os/os.module';
 import { GoogleAuthModule } from './google-auth/google-auth.module';
+import * as redisStore from 'cache-manager-redis-store';
+
+
 
 @Module({
   imports: [
@@ -31,13 +34,20 @@ import { GoogleAuthModule } from './google-auth/google-auth.module';
     MailModule,
     OsModule,
     GoogleAuthModule,
-    // CacheModule.registerAsync<RedisClientOptions>({
-    //   useFactory: () => ({
-    //     store: redisStore as any,
-    //     host: 'localhost',
-    //     port: 6379,
-    //   }),
-    // }),
+    CacheModule.registerAsync({
+      useFactory: () => ({
+        store: redisStore as any,
+        username: 'default',
+        password: 'TI3Bd2LVqJRxdhOfjPtF8V2M8L4BZBVq',
+        socket: {
+          host: 'redis-19252.c56.east-us.azure.cloud.redislabs.com',
+          port: 19252
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [

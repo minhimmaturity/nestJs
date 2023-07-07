@@ -70,7 +70,6 @@ export class LinksService {
       };
 
       const linkByUser = await this.linkRepository.find(options);
-      if (userInDb.package != Package.Free) {
         const links = this.linkRepository.create(createLinkDto);
         const os = this.OsRepository.create();
 
@@ -97,32 +96,6 @@ export class LinksService {
         await this.linkRepository.save(links);
 
         return links;
-      } else {
-        if (linkByUser.length <= 10) {
-          const links = this.linkRepository.create(createLinkDto);
-
-          const domain = createLinkDto.originalLinks.match(
-            /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/,
-          )[1];
-
-          const subDirectory = createLinkDto.originalLinks.split(domain)[1].slice(1);
-          console.log(subDirectory);
-          const hash = await bcrypt.hash(subDirectory, 5);
-          const shortString = process.env.baseUrl + hash.substring(0, 8);
-
-          links.shorterLinks = shortString;
-          links.createAt = new Date();
-          links.clickCount = 0;
-          links.user = userInDb;
-
-          return await this.linkRepository.save(links);
-        } else {
-          throw new HttpException(
-            'Free account only can create 10 links',
-            HttpStatus.FORBIDDEN,
-          );
-        }
-      }
     } catch (err) {
       console.log(err);
       console.log(err.cause);

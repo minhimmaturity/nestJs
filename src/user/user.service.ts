@@ -63,22 +63,6 @@ export class UserService {
     }
   }
 
-  async findLogin(email: string, password: string ) {
-    console.log(email);
-    
-    const user = await this.userRepository.findOneBy({ email: email });
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
-    }
-
-    const isMatch = bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-    return user;
-  }
-
   async remove(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     return await this.userRepository.remove(user);
