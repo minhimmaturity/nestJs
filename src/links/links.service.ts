@@ -9,13 +9,9 @@ import {
 import { Link } from './entity/links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions, Equal } from 'typeorm';
-import { LinkDto } from './dto/links.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
-import { Package } from 'src/user/enum/type.enum';
 import { Os } from '../os/entity/os.entity';
-import { OsDto } from '../os/dto/os.dto';
-import { OsEnum } from 'src/os/enum/os.enum';
 import { createLinkDto } from './dto/createLink.dto';
 
 @Injectable()

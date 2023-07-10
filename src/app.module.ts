@@ -19,7 +19,6 @@ import { MailService } from './mail/mail.service';
 import { Os } from './os/entity/os.entity';
 import { OsModule } from './os/os.module';
 import { GoogleAuthModule } from './google-auth/google-auth.module';
-import * as redisStore from 'cache-manager-redis-store';
 
 
 
@@ -33,21 +32,7 @@ import * as redisStore from 'cache-manager-redis-store';
     LinksModule,
     MailModule,
     OsModule,
-    GoogleAuthModule,
-    CacheModule.registerAsync({
-      useFactory: () => ({
-        store: redisStore as any,
-        username: 'default',
-        password: 'TI3Bd2LVqJRxdhOfjPtF8V2M8L4BZBVq',
-        socket: {
-          host: 'redis-19252.c56.east-us.azure.cloud.redislabs.com',
-          port: 19252
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      }),
-    }),
+    GoogleAuthModule
   ],
   controllers: [AppController],
   providers: [
