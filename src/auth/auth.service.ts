@@ -77,7 +77,7 @@ export class authService {
   private createToken({ id, email, name, roles }): any {
     const access_token = this.jwtService.sign(
       { id, email, name, roles },
-      { expiresIn: '20s' },
+      { expiresIn: '1d' },
     );
     return {
       access_token,

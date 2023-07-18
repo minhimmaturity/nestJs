@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty,IsEnum  } from "class-validator";
 import { OsEnum } from "src/os/enum/os.enum";
 
 export class createLinkDto {

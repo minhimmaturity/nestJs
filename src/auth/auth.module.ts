@@ -25,7 +25,7 @@ import { redisStore } from 'cache-manager-redis-store';
     MailModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '20s' },
+      signOptions: { expiresIn: '3600s' },
     }),
     CacheModule.registerAsync({
       useFactory: () => ({

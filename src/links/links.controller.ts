@@ -18,6 +18,7 @@ import {
 import { LinksService } from '../links/links.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { createLinkDto } from './dto/createLink.dto';
+import { userAgent } from 'next/server';
 
 @Controller('links')
 export class LinksController {
@@ -66,18 +67,14 @@ export class LinksController {
   @Redirect('', 301)
   async redirectToLongLink(
     @Param('shortLink') shortLink: string,
+    @Headers('user-agent') userAgent: string 
   ): Promise<{ url: string }> {
-    console.log("asd");
     const linkMapping = await this.LinksService.findOneByShortLink(shortLink);
-    const osInDb = await this.LinksService.takeDestinationUrl(
-      linkMapping.os.id,
-    );
-
-    await this.LinksService.updateCount(linkMapping.id);
-    if (!linkMapping) {
-      throw new HttpException('Short link not found', HttpStatus.NOT_FOUND);
+    for(let i = 0; i < linkMapping.length; i++) {
+      if(linkMapping[i].os.name === userAgent) {
+        return { url: linkMapping[i].os.destination_url };
+      }
     }
 
-    return { url: osInDb.destination_url };
   }
 }
